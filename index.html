@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#1b1815">
+  <title>Focus Clock</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script defer src="js/storage.js"></script>
+  <script defer src="js/analytics.js"></script>
+  <script defer src="js/timer.js"></script>
+  <script defer src="js/ui.js"></script>
+  <script defer src="js/app.js"></script>
+</head>
+<body>
+  <div class="app-title">Focus Clock</div>
+  <div class="topbar">
+    <button class="icon-btn hidden" id="pauseBtn" aria-label="Pause" title="Pause (P)"><svg id="pauseBtnIcon" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg></button>
+    <button class="icon-btn" id="analyticsBtn" aria-label="Productivity reports" title="Productivity reports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2"/></svg></button>
+    <button class="icon-btn" id="resetBtn" aria-label="Reset" title="Reset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 1 3 6.7M3 12V6m0 6h6"/></svg></button>
+    <button class="icon-btn" id="settingsBtn" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.4 1A8 8 0 0 0 15 6l-.3-2.6h-4L10.4 6a8 8 0 0 0-1.6.9l-2.4-1-2 3.4 2 1.6a7 7 0 0 0 0 2.1l-2 1.6 2 3.4 2.4-1a8 8 0 0 0 1.6.9l.3 2.6h4l.3-2.6a8 8 0 0 0 1.6-.9l2.4 1 2-3.4-2-1.6a7 7 0 0 0 0-1Z"/></svg></button>
+  </div>
+
+  <main class="app">
+    <button class="panel" id="panelA" aria-pressed="false"><div class="glow"></div><div class="side-label" id="labelA">My Time</div><div class="time-display" id="timeA">04:00:00</div><div class="over-tag">over budget</div><div class="budget-note" id="budgetA"></div></button>
+    <div class="center-row"><div class="plunger-wrap"><button class="plunger" id="plungerBtn" aria-label="Switch side"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 16V4m0 0L3 8m4-4 4 4M17 8v12m0 0 4-4m-4 4-4-4" stroke-width="2" stroke-linecap="round"/></svg></button><div class="hint" id="hintText">tap a side to begin</div></div></div>
+    <button class="panel" id="panelB" aria-pressed="false"><div class="glow"></div><div class="side-label" id="labelB">Other Time</div><div class="time-display" id="timeB">02:00:00</div><div class="over-tag">over budget</div><div class="budget-note" id="budgetB"></div></button>
+  </main>
+  <div class="footer-hint">space / center to switch sides · 1 / 2 pick a side · r reset</div>
+  <div class="sr-only" aria-live="polite" id="liveRegion"></div>
+
+  <div class="modal-backdrop" id="resetBackdrop"><section class="modal compact" role="dialog" aria-modal="true"><h2>Reset Session</h2><p class="modal-copy">View session summary before reset?</p><div class="stack-actions"><button class="btn primary" id="resetSummaryBtn">View Summary</button><button class="btn" id="resetNowBtn">Reset Immediately</button><button class="btn ghost" id="resetCancelBtn">Cancel</button></div></section></div>
+
+  <div class="modal-backdrop" id="summaryBackdrop"><section class="modal compact" role="dialog" aria-modal="true"><h2>Session Summary</h2><div class="metric-grid"><div class="metric"><span>Focused Work</span><strong id="summaryFocus">0s</strong></div><div class="metric"><span>Time Pass</span><strong id="summaryPass">0s</strong></div><div class="metric"><span>Total Time</span><strong id="summaryTotal">0s</strong></div><div class="metric"><span>Productivity Ratio</span><strong id="summaryRatio">0%</strong></div></div><div class="efficiency"><span>Focus Efficiency Rating</span><strong id="summaryRating">No activity yet</strong><div class="progress"><i id="summaryBar"></i></div></div><div class="modal-actions summary-actions"><button class="btn" id="summaryReportsBtn">View Reports</button><button class="btn primary" id="summaryDoneBtn">Done</button></div></section></div>
+
+  <div class="modal-backdrop" id="dashboardBackdrop"><section class="modal dashboard" role="dialog" aria-modal="true"><header class="modal-header"><div><span class="eyebrow">Personal Analytics</span><h2>Productivity Reports</h2></div><button class="close-btn" id="closeDashboardBtn" aria-label="Close">×</button></header><nav class="report-tabs" aria-label="Report period"><button class="report-tab active" data-tab="weekly">Week</button><button class="report-tab" data-tab="monthly">Month</button><button class="report-tab" data-tab="heatmap">90 Days</button><button class="report-tab" data-tab="trends">Trends</button></nav><div id="reportBody" class="report-body"></div></section></div>
+
+  <div class="modal-backdrop" id="settingsBackdrop"><section class="modal settings" role="dialog" aria-modal="true"><h2>Settings</h2>
+    <div class="field-group"><label class="group-label">Side A · Focused Work</label><input class="name-input" id="nameA" maxlength="20"><div class="hms-row"><label>Hrs<input type="number" id="hA" min="0" max="23"></label><label>Min<input type="number" id="mA" min="0" max="59"></label><label>Sec<input type="number" id="sA" min="0" max="59"></label></div></div>
+    <div class="field-group"><label class="group-label">Side B · Time Pass</label><input class="name-input" id="nameB" maxlength="20"><div class="hms-row"><label>Hrs<input type="number" id="hB" min="0" max="23"></label><label>Min<input type="number" id="mB" min="0" max="59"></label><label>Sec<input type="number" id="sB" min="0" max="59"></label></div></div>
+    <div class="field-group"><label class="group-label">Controls</label><label class="toggle-row"><span><b>Allow pausing</b><small>Adds a pause button and the “p” shortcut.</small></span><input type="checkbox" id="pauseEnabled"></label></div>
+    <div class="field-group"><label class="group-label">Idle guard</label><label class="toggle-row"><span><b>Switch to Time Pass when idle</b><small>System-wide detection works across apps when browser permission is granted.</small></span><input type="checkbox" id="idleEnabled"></label><label class="inline-field">Switch after <input type="number" id="idleMinutes" min="1" max="60"> minutes</label><button class="btn-ghost idle-permission" id="idlePermBtn">Enable system-wide idle detection</button><div class="status-note" id="idleStatus"></div></div>
+    <div class="field-group"><label class="group-label">Alerts &amp; display</label><label class="toggle-row"><span><b>Browser notifications</b></span><input type="checkbox" id="notifEnabled"></label><button class="btn-ghost" id="notifPermBtn">Grant notification permission</button><div class="status-note" id="notifStatus"></div><label class="toggle-row"><span><b>Sound</b></span><input type="checkbox" id="soundEnabled"></label><label class="toggle-row"><span><b>Keep screen awake</b></span><input type="checkbox" id="wakeEnabled"></label></div>
+    <div class="modal-actions"><button class="btn" id="cancelBtn">Cancel</button><button class="btn primary" id="saveBtn">Save &amp; apply</button></div>
+  </section></div>
+</body>
+</html>
