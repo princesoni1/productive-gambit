@@ -54,13 +54,14 @@
     if (side.remainingMs <= 0 && !s.alerted[i]) {
       s.alerted[i] = true;
       notify(side.name + " is at zero", side.name + " has used its full budget.");
-      beep(i === 0 ? 660 : 520, 260);
+      playCue(i === 0 ? "focusComplete" : "timePassOver");
       hooks.announce && hooks.announce(side.name + " has reached zero and is now in overtime.");
     }
   }
 
-  function switchTo(index) {
+  function switchTo(index, source) {
     const now = Date.now(), s = state();
+    const isFirstStart = s.activeIndex === null;
     if (s.running) applyElapsed(now);
     s.activeIndex = index;
     s.running = true;
@@ -68,6 +69,9 @@
     s.lastActivity = now;
     resetHeartbeat();
     requestWakeLock();
+    if (source === "side") playCue("side");
+    if (source === "idle") playCue("idle");
+    if (isFirstStart) playCue("start", source === "side" ? .08 : 0);
     renderAndSave();
   }
 
@@ -117,6 +121,7 @@
         s.lastTick = switchAt;
         applyElapsed(now);
         s.lastActivity = now;
+        playCue("idle");
         hooks.announce && hooks.announce("No activity detected. Switched to Time Pass.");
         renderAndSave();
         return;
@@ -181,15 +186,41 @@
       try { new Notification(title, { body }); } catch (_) {}
     }
   }
-  function beep(frequency, duration) {
+  function tone(frequency, start, duration, volume, type) {
+    const osc = audioContext.createOscillator(), gain = audioContext.createGain();
+    osc.type = type || "sine";
+    osc.frequency.setValueAtTime(frequency, start);
+    gain.gain.setValueAtTime(.001, start);
+    gain.gain.exponentialRampToValueAtTime(volume || .1, start + .012);
+    gain.gain.exponentialRampToValueAtTime(.001, start + duration);
+    osc.connect(gain); gain.connect(audioContext.destination);
+    osc.start(start); osc.stop(start + duration + .02);
+  }
+
+  // Short synthesized cues preserve offline operation and avoid shipping media files.
+  function playCue(name, delay) {
     if (!settings().soundEnabled) return;
     try {
       audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
-      const osc = audioContext.createOscillator(), gain = audioContext.createGain();
-      osc.frequency.value = frequency; gain.gain.value = .12;
-      osc.connect(gain); gain.connect(audioContext.destination); osc.start();
-      gain.gain.exponentialRampToValueAtTime(.001, audioContext.currentTime + duration / 1000);
-      osc.stop(audioContext.currentTime + duration / 1000);
+      if (audioContext.state === "suspended") audioContext.resume();
+      const at = audioContext.currentTime + (delay || 0);
+      if (name === "side") {
+        tone(460, at, .055, .06, "triangle");
+      } else if (name === "start") {
+        tone(392, at, .11, .08, "sine");
+        tone(523.25, at + .1, .18, .09, "sine");
+      } else if (name === "idle") {
+        tone(523.25, at, .13, .075, "triangle");
+        tone(392, at + .12, .2, .08, "triangle");
+      } else if (name === "timePassOver") {
+        tone(233.08, at, .16, .1, "square");
+        tone(196, at + .2, .16, .1, "square");
+        tone(174.61, at + .4, .25, .11, "square");
+      } else if (name === "focusComplete") {
+        tone(523.25, at, .16, .075, "sine");
+        tone(659.25, at + .12, .2, .08, "sine");
+        tone(783.99, at + .26, .34, .09, "sine");
+      }
     } catch (_) {}
   }
   async function requestWakeLock() {
@@ -227,7 +258,7 @@
         }
         if (settings().idleEnabled && systemIdleDetector.userState === "idle" && state().running && state().activeIndex === 0) {
           applyElapsed(Date.now());
-          switchTo(1);
+          switchTo(1, "idle");
           hooks.announce && hooks.announce("System inactivity detected. Switched to Time Pass.");
         } else if (systemIdleDetector.userState === "active") {
           state().lastActivity = Date.now();

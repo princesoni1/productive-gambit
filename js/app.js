@@ -8,8 +8,8 @@
   function finishSession() { FCAnalytics.recordSession(data.history, FCTimer.snapshot()); FCTimer.stopAndReset(); FCStorage.save(data); }
   function requestReset() { FCTimer.hasProgress() ? FCUI.showResetPrompt() : FCTimer.stopAndReset(); }
 
-  $("panelA").addEventListener("click", () => FCTimer.switchTo(0));
-  $("panelB").addEventListener("click", () => FCTimer.switchTo(1));
+  $("panelA").addEventListener("click", () => FCTimer.switchTo(0, "side"));
+  $("panelB").addEventListener("click", () => FCTimer.switchTo(1, "side"));
   $("plungerBtn").addEventListener("click", FCTimer.toggleSide);
   $("pauseBtn").addEventListener("click", FCTimer.togglePause);
   $("resetBtn").addEventListener("click", requestReset);
