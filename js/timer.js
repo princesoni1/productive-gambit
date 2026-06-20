@@ -3,6 +3,8 @@
 
   let data, hooks = {}, interval, wakeLock = null, audioContext = null;
   let systemIdleDetector = null, systemIdleController = null, systemIdleActive = false;
+  let lifecycleWasRunning = false, screenWasRunning = false;
+  let heartbeatWall = Date.now(), heartbeatMonotonic = performance.now();
   const state = () => data.state;
   const settings = () => data.settings;
 
@@ -11,8 +13,11 @@
     hooks = callbacks || {};
     const s = state();
     s.session = s.session || { focusMs: 0, timePassMs: 0 };
-    if (s.running && s.activeIndex !== null && s.lastTick) {
-      applyElapsed(Date.now());
+    // A persisted running state means the page was closed, killed, or reloaded.
+    // Never turn that wall-clock gap into Focus or Time Pass time.
+    if (s.running) {
+      s.running = false;
+      s.lastTick = null;
       s.lastActivity = Date.now();
     }
     interval = setInterval(tick, 250);
@@ -22,6 +27,13 @@
         requestWakeLock();
       }
     });
+    // Page Lifecycle events cover browser tab freezing and back-forward cache.
+    // A frozen page resumes from a fresh timestamp, excluding the frozen gap.
+    document.addEventListener("freeze", suspendForLifecycle);
+    document.addEventListener("resume", resumeFromLifecycle);
+    window.addEventListener("pagehide", suspendForLifecycle);
+    window.addEventListener("pageshow", event => { if (event.persisted) resumeFromLifecycle(); });
+    window.addEventListener("beforeunload", suspendForLifecycle);
     if (settings().systemIdleGranted) enableSystemIdle(false);
     renderAndSave();
     requestWakeLock();
@@ -54,6 +66,7 @@
     s.running = true;
     s.lastTick = now;
     s.lastActivity = now;
+    resetHeartbeat();
     requestWakeLock();
     renderAndSave();
   }
@@ -77,6 +90,19 @@
     const s = state();
     if (!s.running) return;
     const now = Date.now();
+    // On platforms where monotonic time excludes system sleep, a large drift
+    // from wall time reveals the suspend interval. Drop that interval.
+    const monotonicNow = performance.now();
+    const sleptFor = (now - heartbeatWall) - (monotonicNow - heartbeatMonotonic);
+    heartbeatWall = now;
+    heartbeatMonotonic = monotonicNow;
+    if (sleptFor > 2000) {
+      s.lastTick = now;
+      s.lastActivity = now;
+      hooks.announce && hooks.announce("Sleep detected. Suspended time was excluded.");
+      renderAndSave();
+      return;
+    }
     // When system-wide detection is unavailable, local input is only meaningful
     // while this page is visible. A hidden page must not interpret missing events
     // as inactivity because the user may be working in another app or tab.
@@ -109,6 +135,41 @@
     s.session = { focusMs: 0, timePassMs: 0 };
     releaseWakeLock();
     renderAndSave();
+  }
+
+  function suspendTimer() {
+    const s = state(), wasRunning = s.running;
+    if (wasRunning) applyElapsed(Date.now());
+    s.running = false;
+    s.lastTick = null;
+    releaseWakeLock();
+    renderAndSave();
+    return wasRunning;
+  }
+
+  function resumeTimer() {
+    const s = state();
+    if (s.activeIndex === null) return;
+    s.running = true;
+    s.lastTick = s.lastActivity = Date.now();
+    resetHeartbeat();
+    requestWakeLock();
+    renderAndSave();
+  }
+
+  function suspendForLifecycle() {
+    lifecycleWasRunning = suspendTimer() || lifecycleWasRunning;
+  }
+
+  function resumeFromLifecycle() {
+    if (!lifecycleWasRunning) return;
+    lifecycleWasRunning = false;
+    resumeTimer();
+  }
+
+  function resetHeartbeat() {
+    heartbeatWall = Date.now();
+    heartbeatMonotonic = performance.now();
   }
 
   function renderAndSave() { hooks.render && hooks.render(); hooks.save && hooks.save(); }
@@ -154,6 +215,16 @@
       systemIdleController = new AbortController();
       systemIdleDetector = new window.IdleDetector();
       systemIdleDetector.addEventListener("change", () => {
+        // A locked screen commonly accompanies laptop sleep. Freeze accrual at
+        // lock and restart from the unlock timestamp, excluding sleep entirely.
+        if (systemIdleDetector.screenState === "locked") {
+          screenWasRunning = suspendTimer() || screenWasRunning;
+          return;
+        }
+        if (systemIdleDetector.screenState === "unlocked" && screenWasRunning) {
+          screenWasRunning = false;
+          resumeTimer();
+        }
         if (settings().idleEnabled && systemIdleDetector.userState === "idle" && state().running && state().activeIndex === 0) {
           applyElapsed(Date.now());
           switchTo(1);

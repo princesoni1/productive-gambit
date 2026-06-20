@@ -33,7 +33,7 @@
       $("panel" + suffix).setAttribute("aria-pressed", String(active));
     });
     $("plungerBtn").classList.toggle("is-running", s.running);
-    $("hintText").textContent = s.activeIndex === null ? "tap a side to begin" : s.running ? "tap here or press space to switch sides" : "paused · press p to resume";
+    $("hintText").textContent = s.activeIndex === null ? "tap a side to begin" : s.running ? "tap here or press space to switch sides" : data.settings.pauseEnabled ? "paused · press p to resume" : "paused · tap a side to resume";
     $("pauseBtn").classList.toggle("hidden", !data.settings.pauseEnabled);
     $("pauseBtn").setAttribute("aria-label", s.running ? "Pause" : "Resume");
     $("pauseBtnIcon").innerHTML = s.running ? '<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>' : '<path d="M8 5v14l11-7z"/>';
