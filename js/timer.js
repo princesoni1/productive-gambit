@@ -27,6 +27,10 @@
         requestWakeLock();
       }
     });
+    // Browsers may suspend Web Audio until a direct user gesture. Prime it in
+    // capture phase so the first clock action can reliably produce its cue.
+    document.addEventListener("pointerdown", primeAudio, true);
+    document.addEventListener("keydown", primeAudio, true);
     // Page Lifecycle events cover browser tab freezing and back-forward cache.
     // A frozen page resumes from a fresh timestamp, excluding the frozen gap.
     document.addEventListener("freeze", suspendForLifecycle);
@@ -69,19 +73,24 @@
     s.lastActivity = now;
     resetHeartbeat();
     requestWakeLock();
-    if (source === "side") playCue("side");
+    if ((source === "side" || source === "switch") && !isFirstStart) {
+      playCue(index === 0 ? "switchFocus" : "switchPass");
+    }
     if (source === "idle") playCue("idle");
-    if (isFirstStart) playCue("start", source === "side" ? .08 : 0);
+    if (isFirstStart) playCue("start");
     renderAndSave();
   }
 
-  function toggleSide() { switchTo(state().activeIndex === 0 ? 1 : 0); }
+  function toggleSide() { switchTo(state().activeIndex === 0 ? 1 : 0, "switch"); }
 
   function togglePause() {
     const s = state();
     if (!settings().pauseEnabled || s.activeIndex === null) return;
-    if (s.running) { applyElapsed(Date.now()); s.running = false; releaseWakeLock(); }
-    else { s.lastTick = Date.now(); s.lastActivity = Date.now(); s.running = true; requestWakeLock(); }
+    if (s.running) {
+      applyElapsed(Date.now()); s.running = false; releaseWakeLock(); playCue("pause");
+    } else {
+      s.lastTick = Date.now(); s.lastActivity = Date.now(); s.running = true; requestWakeLock(); playCue("resume");
+    }
     renderAndSave();
   }
 
@@ -197,30 +206,56 @@
     osc.start(start); osc.stop(start + duration + .02);
   }
 
+  function primeAudio() {
+    if (!settings().soundEnabled) return;
+    try {
+      audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+      if (audioContext.state === "suspended") audioContext.resume().catch(() => {});
+    } catch (_) {}
+  }
+
   // Short synthesized cues preserve offline operation and avoid shipping media files.
   function playCue(name, delay) {
     if (!settings().soundEnabled) return;
     try {
       audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
-      if (audioContext.state === "suspended") audioContext.resume();
-      const at = audioContext.currentTime + (delay || 0);
-      if (name === "side") {
-        tone(460, at, .055, .06, "triangle");
+      const schedule = () => {
+        const at = audioContext.currentTime + (delay || 0);
+        if (name === "switchFocus") {
+        tone(392, at, .1, .14, "triangle");
+        tone(523.25, at + .075, .15, .15, "triangle");
+        tone(659.25, at + .15, .2, .12, "sine");
+      } else if (name === "switchPass") {
+        tone(659.25, at, .1, .14, "triangle");
+        tone(523.25, at + .075, .15, .15, "triangle");
+        tone(392, at + .15, .2, .12, "sine");
       } else if (name === "start") {
-        tone(392, at, .11, .08, "sine");
-        tone(523.25, at + .1, .18, .09, "sine");
+        tone(261.63, at, .14, .15, "triangle");
+        tone(392, at + .09, .2, .16, "sine");
+        tone(523.25, at + .2, .32, .17, "sine");
       } else if (name === "idle") {
-        tone(523.25, at, .13, .075, "triangle");
-        tone(392, at + .12, .2, .08, "triangle");
+        tone(659.25, at, .14, .15, "triangle");
+        tone(523.25, at + .11, .18, .16, "triangle");
+        tone(329.63, at + .23, .3, .17, "sine");
       } else if (name === "timePassOver") {
-        tone(233.08, at, .16, .1, "square");
-        tone(196, at + .2, .16, .1, "square");
-        tone(174.61, at + .4, .25, .11, "square");
+        tone(233.08, at, .2, .18, "square");
+        tone(233.08, at + .26, .2, .18, "square");
+        tone(174.61, at + .52, .38, .2, "sawtooth");
       } else if (name === "focusComplete") {
-        tone(523.25, at, .16, .075, "sine");
-        tone(659.25, at + .12, .2, .08, "sine");
-        tone(783.99, at + .26, .34, .09, "sine");
+        tone(523.25, at, .2, .15, "triangle");
+        tone(659.25, at + .12, .24, .16, "sine");
+        tone(783.99, at + .25, .4, .18, "sine");
+        tone(1046.5, at + .4, .48, .14, "sine");
+      } else if (name === "pause") {
+        tone(523.25, at, .13, .16, "triangle");
+        tone(349.23, at + .1, .24, .16, "sine");
+      } else if (name === "resume") {
+        tone(349.23, at, .13, .16, "triangle");
+        tone(523.25, at + .1, .24, .17, "sine");
       }
+      };
+      if (audioContext.state === "suspended") audioContext.resume().then(schedule).catch(() => {});
+      else schedule();
     } catch (_) {}
   }
   async function requestWakeLock() {
