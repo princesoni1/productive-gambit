@@ -1,376 +1,240 @@
 # Productive Gambit ♟️
 
-**A chess-clock inspired productivity analytics tool that tracks both focused work and time spent away from work to reveal your true productivity ratio.**
+A local-first productivity tracker inspired by a chess clock.
 
-Most productivity applications answer one question:
+Unlike traditional focus timers that only measure productive time, Productive Gambit tracks **both focused work and time spent away from work**, giving you a more accurate picture of how efficiently you use your time.
 
-> How much did you work today?
-
-Productive Gambit answers a more useful one:
-
-> How much of your time was actually productive?
-
-Inspired by the concept of a chess clock, Productive Gambit uses a dual-timer system where only one side can run at a time:
-
-* **Focused Work** – time intentionally spent working toward a goal.
-* **Time Pass** – time spent distracted, idle, procrastinating, or away from focused work.
-
-By tracking both sides simultaneously, Productive Gambit provides a realistic view of how efficiently time is being used throughout the day.
+The application runs entirely in the browser using HTML, CSS, and vanilla JavaScript. No account, backend, or third-party services are required.
 
 ---
 
-## Why Productive Gambit?
+## Why?
 
-Traditional timers and Pomodoro applications only measure productive time.
+Most productivity tools answer one question:
 
-If your goal is to complete four hours of focused work, most tools simply tell you when you reach that target.
+> How much work did you complete?
 
-What they don't tell you is:
+Productive Gambit answers another:
 
-* How long it actually took.
-* How much time was lost to distractions.
-* How productive your day really was.
-* Whether your productivity is improving over time.
+> How much of your available time was actually productive?
 
-### Example
+By tracking both productive and non-productive time, you can measure efficiency instead of simply accumulating focus hours.
 
-Goal:
-
-```text
-Focused Work Target: 4h
-```
-
-Session Results:
+Example session:
 
 ```text
 Focused Work: 4h 00m
 Time Pass:    1h 20m
 
 Total Time:   5h 20m
-
-Productivity Ratio: 75%
+Productivity: 75%
 ```
 
-Instead of simply knowing that four hours of work were completed, you gain visibility into the hidden cost of achieving those four hours.
+Instead of knowing only that you completed four hours of work, you also see how much time it actually required.
 
 ---
 
-# Core Features
+# Features
 
-## ⏱️ Dual-Timer Productivity System
+## Dual-Timer Productivity Tracking
 
-A productivity-focused implementation of a chess clock.
+A chess-clock style timer where only one side runs at a time.
 
-### Focused Work Side
-
-Tracks intentional work time.
-
-### Time Pass Side
-
-Tracks distractions, breaks, inactivity, and non-productive time.
-
-### Switching Methods
-
-* Click to switch sides
-* Space bar shortcut
-* Keyboard shortcuts (1 / 2)
-* Automatic switching through idle detection
-
-### Additional Capabilities
-
-* Real-time countdown display
-* Custom side labels
+* Focused Work timer
+* Time Pass timer
+* One-click switching
+* Spacebar and keyboard shortcuts
+* Automatic idle detection
+* Custom timer labels
 * Custom time allocations
 * Overtime tracking
 * Active side highlighting
-* Budget remaining indicators
 
 ---
 
-## 🎯 Session Management
+## Session Management
 
-Designed for both short focus sessions and full-day tracking.
-
-Features include:
-
-* Start and pause controls
-* Session reset functionality
+* Start, pause, and reset sessions
+* Automatic session recovery after refresh
+* Persistent timer state
+* HH:MM:SS precision
 * Optional session review before reset
-* Persistent session state
-* Automatic recovery after page refresh
-* HH:MM:SS precision tracking
 
 ---
 
-## 🛡️ Intelligent Idle Detection
+## Idle Detection
 
-Productive Gambit can automatically detect inactivity and attribute time appropriately.
+Automatically attributes inactive time to the appropriate timer.
 
-### Local Idle Detection
-
-Detects inactivity within the browser window.
-
-### System-Wide Idle Detection
-
-Can monitor user inactivity across the operating system on supported browsers.
-
-### Configuration Options
-
-* Adjustable timeout duration
-* 1–60 minute inactivity thresholds
-* Automatic side switching
-* Accurate elapsed-time attribution
-
-This helps reduce manual tracking effort and improves productivity accuracy.
+* Browser inactivity detection
+* Optional system-wide idle detection (supported browsers)
+* Configurable timeout (1–60 minutes)
+* Automatic timer switching
 
 ---
 
-## 🔔 Notifications & Alerts
-
-Stay aware of budget expiration without constantly monitoring the screen.
-
-Features:
+## Notifications
 
 * Browser notifications
-* Distinct audio alerts
-* Side-specific notification tones
+* Audio alerts
+* Overtime notifications
+* Focus budget expiration alerts
 * Accessibility announcements
-* Configurable sound controls
-
-Receive alerts when:
-
-* A timer reaches zero
-* Overtime begins
-* Focus budgets are exhausted
 
 ---
 
-# Productivity Analytics Dashboard
+# Analytics
 
-One of the primary goals of Productive Gambit is not merely time tracking, but productivity measurement.
+## Session Summary
 
----
+Each completed session includes:
 
-## 📊 Session Summary
-
-Each session generates a performance summary containing:
-
-* Focused Work Time
-* Time Pass Time
-* Total Elapsed Time
-* Productivity Ratio
-* Focus Efficiency Rating
-
-Visual progress indicators provide immediate feedback on session quality.
+* Focus time
+* Time Pass
+* Total elapsed time
+* Productivity ratio
+* Focus efficiency rating
 
 ---
 
-## 📈 Weekly Analytics
+## Weekly Analytics
 
-Analyze the previous seven days of productivity.
-
-Includes:
-
-* Daily productivity breakdown
-* Focus time totals
+* Daily productivity
+* Focus totals
 * Time Pass totals
-* Most productive day
-* Least productive day
-* Session counts
-* Average productivity score
-
-Visual performance bars help identify trends throughout the week.
+* Session count
+* Best and worst days
+* Average productivity
 
 ---
 
-## 📅 Monthly Analytics
-
-Track longer-term productivity behavior.
-
-Metrics include:
+## Monthly Analytics
 
 * Monthly focus totals
 * Monthly distraction totals
-* Average daily focus time
+* Average daily focus
 * Productivity averages
-* Longest focus day
-* Best-performing day
-* Monthly performance trends
+* Long-term trends
 
 ---
 
-## 🔥 90-Day Productivity Heatmap
+## 90-Day Heatmap
 
-A GitHub-style productivity heatmap provides a visual overview of the previous three months.
+A GitHub-style heatmap visualizes daily productivity over the previous three months.
 
-Features:
-
-* Productivity intensity visualization
-* Daily performance scoring
-* Historical trend tracking
-* Hoverable statistics
-* Responsive design
-
-The heatmap quickly reveals productive streaks, consistency patterns, and periods of decline.
+* Productivity intensity
+* Historical trends
+* Hoverable daily statistics
+* Responsive layout
 
 ---
 
-## 📉 Trend Analysis
+## Trend Analysis
 
-Productive Gambit compares current performance against historical baselines.
+Compare current performance with previous periods.
 
-### Weekly Comparisons
-
-* This Week vs Last Week
-* Productivity change %
-* Focus time change %
-
-### Monthly Comparisons
-
-* This Month vs Last Month
-* Average daily focus improvement
-* Overall productivity growth
-
-These comparisons help quantify progress rather than relying on intuition.
+* This week vs last week
+* This month vs last month
+* Focus time changes
+* Productivity improvements
 
 ---
 
-## 💡 Productivity Insights
+## Productivity Insights
 
-The application generates rule-based insights using historical productivity data.
+Generates simple local insights from historical data, including:
 
-Examples:
-
-* Productivity improvement trends
-* Consistently productive weekdays
-* Average daily focus duration
+* Productivity trends
+* Most productive weekdays
+* Average focus duration
 * Focus efficiency patterns
-* Work habit observations
+* Consistency observations
 
-All insights are generated locally without transmitting data anywhere.
-
----
-
-# ⌨️ Keyboard Shortcuts
-
-| Shortcut | Action                |
-| -------- | --------------------- |
-| Space    | Switch sides          |
-| 1        | Activate Focused Work |
-| 2        | Activate Time Pass    |
-| P        | Toggle Pause          |
-| R        | Reset Session         |
-| S        | Open Settings         |
-| Esc      | Close Dialogs         |
-
-Designed for uninterrupted keyboard-driven workflows.
+All analytics are calculated locally.
 
 ---
 
-# ⚙️ Advanced Configuration
+# Keyboard Shortcuts
 
-Productive Gambit provides extensive customization options.
+| Key   | Action        |
+| ----- | ------------- |
+| Space | Switch timers |
+| 1     | Focused Work  |
+| 2     | Time Pass     |
+| P     | Pause         |
+| R     | Reset session |
+| S     | Open settings |
+| Esc   | Close dialogs |
 
-### Timer Configuration
+---
 
-* Hours
-* Minutes
-* Seconds
+# Customization
 
-### Side Customization
+Configure:
 
-Rename timer labels to fit personal workflows.
+* Timer durations
+* Side names
+* Notification settings
+* Sound effects
+* Wake Lock support
+* Idle detection
+* Pause controls
 
-Examples:
+Example timer labels:
 
 * Focus / Distraction
 * Work / Break
 * Study / Leisure
 * Coding / Browsing
 
-### Additional Controls
-
-* Pause button visibility
-* Notification controls
-* Sound controls
-* Wake Lock support
-* System-wide idle detection
-
 ---
 
-# 💾 Privacy & Data Storage
+# Privacy
 
 Productive Gambit is completely local-first.
 
-### No Account Required
+* No accounts
+* No login
+* No backend
+* No analytics
+* No cloud dependency
 
-No registration.
-
-No login.
-
-No cloud dependency.
-
-### Local Storage
-
-Data is stored directly in the browser:
-
-* Settings
-* Session history
-* Analytics history
-* Productivity records
-
-Your productivity data remains on your device.
+All settings, session history, and productivity data are stored locally in your browser.
 
 ---
 
-# 🌐 Accessibility
+# Accessibility
 
-Accessibility is a first-class consideration.
-
-Features include:
-
+* Full keyboard navigation
+* Semantic HTML
 * ARIA labels
 * Screen reader support
 * Live announcements
-* Semantic HTML
-* Full keyboard navigation
 
 ---
 
 # Technology Stack
-
-Built entirely using:
 
 * HTML5
 * CSS3
 * Vanilla JavaScript
 * LocalStorage API
 
-No frameworks.
-
-No backend.
-
-No database.
-
-No third-party analytics.
-
-No build tools.
-
-Simply open the application and start tracking.
+No frameworks. No build tools. No dependencies.
 
 ---
 
-# Future Roadmap
+# Roadmap
 
-Potential future enhancements:
+Planned features include:
 
-* Data export (CSV/JSON)
+* CSV/JSON export
 * Multiple productivity profiles
-* Advanced charts
+* Additional charts
 * Custom themes
 * Goal tracking
-* Historical backups
-* Optional cloud synchronization
+* Backup and restore
+* Optional cloud sync
 
 ---
 
