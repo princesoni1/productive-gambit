@@ -24,7 +24,8 @@
       pauseEnabled: false,
       notifEnabled: false,
       soundEnabled: true,
-      wakeEnabled: true
+      wakeEnabled: true,
+      theme: "dark"
     },
     history: {}
   });

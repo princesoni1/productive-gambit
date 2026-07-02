@@ -117,6 +117,20 @@
     $("idleStatus").textContent = messages[status] || messages.unsupported;
     $("idlePermBtn").disabled = status === "active" || status === "unsupported";
   }
+function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    $("themeIconSun").classList.toggle("hidden", theme === "light");
+    $("themeIconMoon").classList.toggle("hidden", theme !== "light");
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", theme === "light" ? "#f4f3f6" : "#1b1815");
+  }
 
-  global.FCUI = { init, renderClock, open, close, announce, showSummary, showResetPrompt, openDashboard, renderDashboard, openSettings, readDuration, updateNotificationStatus, updateIdleStatus, formatDuration };
+  function toggleTheme() {
+    data.settings.theme = data.settings.theme === "light" ? "dark" : "light";
+    applyTheme(data.settings.theme);
+  }
+
+  global.FCUI = { init, renderClock, open, close, announce, showSummary, showResetPrompt, openDashboard, renderDashboard, openSettings, readDuration, updateNotificationStatus, updateIdleStatus, formatDuration, applyTheme, toggleTheme };
 })(window);
+
+

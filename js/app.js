@@ -3,6 +3,7 @@
 
   const data = FCStorage.load(), $ = id => document.getElementById(id);
   FCUI.init(data);
+  FCUI.applyTheme(data.settings.theme || "dark");
   FCTimer.init(data, { render: FCUI.renderClock, save: () => FCStorage.save(data), announce: FCUI.announce });
 
   function finishSession() { FCAnalytics.recordSession(data.history, FCTimer.snapshot()); FCTimer.stopAndReset(); FCStorage.save(data); }
@@ -23,6 +24,7 @@
   $("summaryReportsBtn").addEventListener("click", () => { FCUI.close("summaryBackdrop"); FCUI.openDashboard(); });
   $("closeDashboardBtn").addEventListener("click", () => FCUI.close("dashboardBackdrop"));
   $("cancelBtn").addEventListener("click", () => FCUI.close("settingsBackdrop"));
+  $("themeToggleBtn").addEventListener("click", () => { FCUI.toggleTheme(); FCStorage.save(data); });
   document.querySelectorAll(".report-tab").forEach(button => button.addEventListener("click", () => FCUI.renderDashboard(button.dataset.tab)));
 
   $("saveBtn").addEventListener("click", () => {

@@ -30,8 +30,59 @@
   --radius:           20px;
   --seam:             2px;
 
+  /* Additions for Light theme */
+
+  --shell:        #0f0e12;
+  --modal-bg:     #1e1d24;
+  --tooltip-bg:   #13121a;
+  --plunger-1:    #2e2c38;
+  --plunger-2:    #1e1d24;
+  --plunger-3:    #18171e;
+  --heat-0:       #26242e;
+  --heat-1:       #2d2d52;
+  --heat-2:       #3a3a78;
+  --heat-3:       #4f4fa8;
+
+
   font-size: 16px;
   color-scheme: dark;
+}
+
+[data-theme="light"] {
+  --bg:               #f4f3f6;
+  --surface:          #ffffff;
+  --surface-raised:   #f7f6fa;
+  --surface-active:   #eeecf8;
+
+  --edge:             #e0dde6;
+  --edge-active:      #c9c3e0;
+  --edge-subtle:      #e8e5ec;
+
+  --accent:           #5561e8;
+  --accent-dim:       #b3bbf5;
+  --accent-muted:     #e6e8fc;
+  --accent-glow:      rgba(85, 97, 232, 0.12);
+  --accent-glow-soft: rgba(85, 97, 232, 0.06);
+
+  --ivory:            #201e28;
+  --ivory-dim:        #504b5e;
+  --muted:            #827d90;
+  --muted-soft:       #a8a3b3;
+
+  --danger:           #c9403a;
+
+  --shell:            #e5e2ea;
+  --modal-bg:         #ffffff;
+  --tooltip-bg:       #ffffff;
+  --plunger-1:        #ffffff;
+  --plunger-2:        #f2f0f6;
+  --plunger-3:        #e8e5ee;
+  --heat-0:           #e9e7ee;
+  --heat-1:           #c9cdf7;
+  --heat-2:           #9aa0ee;
+  --heat-3:           #6d76e2;
+
+  color-scheme: light;
 }
 
 *,
@@ -76,7 +127,7 @@ input {
   flex-direction: column;
   gap: var(--seam);
   padding: var(--seam);
-  background: #0f0e12;
+  background: var(--shell);
 }
 
 /* ====================================================================
@@ -345,15 +396,15 @@ input {
   background:
     radial-gradient(
       circle at 40% 35%,
-      #2e2c38 0%,
-      #1e1d24 60%,
-      #18171e 100%
+      var(--plunger-1) 0%,
+      var(--plunger-2) 60%,
+      var(--plunger-3) 100%
     );
 
   border: 1px solid var(--edge-active);
 
   box-shadow:
-    0 0 0 4px #0f0e12,
+    0 0 0 4px var(--shell),
     0 4px 16px rgba(0, 0, 0, 0.55),
     0 1px 4px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.07),
@@ -486,7 +537,7 @@ input {
   max-width: 440px;
   max-height: 90vh;
   overflow: auto;
-  background: #1e1d24;
+  background: var(--modal-bg);
   border: 1px solid var(--edge);
   border-radius: 20px;
   padding: 24px 22px 20px;
@@ -776,7 +827,7 @@ input {
   transform: translateX(-50%);
   width: 180px;
   padding: 9px;
-  background: #13121a;
+  background: var(--tooltip-bg);
   border: 1px solid var(--edge);
   border-radius: 8px;
   color: var(--muted);
@@ -794,10 +845,10 @@ input {
   display: block;
 }
 
-.level-0 { background: #26242e; }
-.level-1 { background: #2d2d52; }
-.level-2 { background: #3a3a78; }
-.level-3 { background: #4f4fa8; }
+.level-0 { background: var(--level-0); }
+.level-1 { background: var(--level-1); }
+.level-2 { background: var(--level-2); }
+.level-3 { background: var(--level-3); }
 .level-4 { background: var(--accent); }
 
 .legend {
